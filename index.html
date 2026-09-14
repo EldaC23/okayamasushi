@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okayama Restaurante | Menú Digital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            main: '#C0392B',
+                            dark: '#902B20',
+                            accent: '#F1C40F',
+                            bg: '#0B0B0C',
+                            card: '#161618',
+                            card2: '#1F1F22'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0B0B0C;
+            background-image: radial-gradient(circle at 50% 0%, rgba(241, 196, 15, 0.08), transparent 60%);
+            background-attachment: fixed;
+            color: #E5E7EB;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .brush-title {
+            position: relative;
+            display: inline-block;
+            padding: 4px 18px;
+            z-index: 1;
+        }
+        .brush-title::before {
+            content: "";
+            position: absolute;
+            inset: -2px -6px;
+            background: linear-gradient(100deg, #C0392B, #902B20);
+            transform: rotate(-1.5deg) skewX(-6deg);
+            border-radius: 6px 14px 6px 14px;
+            z-index: -1;
+            opacity: 0.95;
+            box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 18px rgba(241, 196, 15, 0.45); }
+            50% { box-shadow: 0 4px 28px rgba(241, 196, 15, 0.75); }
+        }
+        .cta-glow {
+            animation: glowPulse 2.2s ease-in-out infinite;
+        }
+
+        .product-card {
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .product-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="pb-28">
+
+    <!-- HEADER STICKY -->
+    <header class="sticky top-0 z-30 bg-gradient-to-b from-[#C0392B] to-[#902B20] text-white shadow-xl border-b border-brand-accent/20">
+        <div class="max-w-md mx-auto px-4 pt-4 pb-3 text-center">
+            <h1 class="text-2xl font-black tracking-wider uppercase drop-shadow-md">OKAYAMA</h1>
+            <p class="text-xs font-semibold text-brand-accent tracking-widest uppercase mb-2">Restaurante & Sushi Bar</p>
+            
+            <!-- REDES -->
+            <div class="flex justify-center gap-4 text-sm mb-3">
+                <a href="#" class="hover:text-brand-accent transition"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-brand-accent transition"><i class="fab fa-tiktok"></i></a>
+                <a href="#" class="hover:text-brand-accent transition"><i class="fab fa-facebook"></i></a>
+            </div>
+
+            <!-- INFO OPERATIVA -->
+            <div class="bg-black/25 backdrop-blur-md rounded-lg p-2.5 text-[11px] space-y-1 mb-3 text-gray-200 border border-white/10">
+                <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-motorcycle text-brand-accent"></i>
+                    <span>Delivery en toda la ciudad</span>
+                </div>
+                <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-clock text-brand-accent"></i>
+                    <span>Mar a Dom: 12:00 PM - 10:30 PM</span>
+                </div>
+                <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-phone-alt text-brand-accent"></i>
+                    <span>Pedidos: 0424-8106071</span>
+                </div>
+            </div>
+
+            <!-- BUSCADOR -->
+            <div class="relative">
+                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Buscar roll, entrada, bebida..." 
+                    class="w-full pl-9 pr-4 py-1.5 text-xs rounded-full bg-black/40 text-white placeholder-gray-300 border border-white/20 focus:outline-none focus:border-brand-accent transition">
+            </div>
+        </div>
+
+        <!-- FILTRO DE CATEGORÍAS (STICKY HORIZONTAL) -->
+        <nav class="bg-black/60 backdrop-blur-md border-t border-white/10 py-2.5 px-3 overflow-x-auto no-scrollbar flex gap-2">
+            <button onclick="scrollToCategory('cat-entradas', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-brand-main text-white shadow-md transition">Entradas</button>
+            <button onclick="scrollToCategory('cat-ensaladas', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Ensaladas</button>
+            <button onclick="scrollToCategory('cat-ceviches', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Ceviches</button>
+            <button onclick="scrollToCategory('cat-rolls-pref', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Rolls Preferencia</button>
+            <button onclick="scrollToCategory('cat-rolls-trad', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Rolls Tradicionales</button>
+            <button onclick="scrollToCategory('cat-rolls-esp', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Rolls Especiales</button>
+            <button onclick="scrollToCategory('cat-wok', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Wok & Thai</button>
+            <button onclick="scrollToCategory('cat-poke', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Poke & Barcos</button>
+            <button onclick="scrollToCategory('cat-postres', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Postres</button>
+            <button onclick="scrollToCategory('cat-bebidas', this)" class="cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition">Bebidas</button>
+        </nav>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="max-w-md mx-auto px-3 pt-6 space-y-8">
+
+        <!-- ENTRADAS -->
+        <section id="cat-entradas" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Entradas</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="croquetas de cangrejo">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Croquetas de Cangrejo</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Croquetas crujientes rellenas de cangrejo sazonado.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $7.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('croquetas-cangrejo', -1, 'Croquetas de Cangrejo', 7)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-croquetas-cangrejo" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('croquetas-cangrejo', 1, 'Croquetas de Cangrejo', 7)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="coquitos de salmon">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Coquitos de Salmón</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Bocaditos de salmón fresco empanizados y crocantes.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $8.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('coquitos-salmon', -1, 'Coquitos de Salmón', 8.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-coquitos-salmon" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('coquitos-salmon', 1, 'Coquitos de Salmón', 8.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="camarones crispy">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Camarones Crispy</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Camarones tempurizados con dip especial oriental.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $9.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('camarones-crispy', -1, 'Camarones Crispy', 9)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-camarones-crispy" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('camarones-crispy', 1, 'Camarones Crispy', 9)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="kurumi crocante">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Kurumi Crocante</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Bocado crujiente especial de la casa con toque marino.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $9.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('kurumi-crocante', -1, 'Kurumi Crocante', 9.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-kurumi-crocante" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('kurumi-crocante', 1, 'Kurumi Crocante', 9.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="racion de tequenos">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ración de Tequeños</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Tequeños de queso fritos al punto dorado.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $5.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('tequenos', -1, 'Ración de Tequeños', 5.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-tequenos" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('tequenos', 1, 'Ración de Tequeños', 5.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ENSALADAS ASIÁTICAS -->
+        <section id="cat-ensaladas" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Ensaladas Asiáticas</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ensalada dinamita">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ensalada Dinamita</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Kanicama, wakame, caviar capelin naranja aderezada con salsa spicy.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $8.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ensalada-dinamita', -1, 'Ensalada Dinamita', 8)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ensalada-dinamita" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ensalada-dinamita', 1, 'Ensalada Dinamita', 8)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ensalada yoshi">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ensalada Yoshi</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Kanicama fresco, kanicama crocante, wakame y salmón.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $9.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ensalada-yoshi', -1, 'Ensalada Yoshi', 9)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ensalada-yoshi" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ensalada-yoshi', 1, 'Ensalada Yoshi', 9)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ensalada fuji">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ensalada Fuji</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Kanicama, wakame, camarones crispy y salmón aderezada con spicy, fuji y sésamo.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $9.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ensalada-fuji', -1, 'Ensalada Fuji', 9.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ensalada-fuji" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ensalada-fuji', 1, 'Ensalada Fuji', 9.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ensalada poseidon">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ensalada Poseidón</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Wakame, cangrejo, salmón, atún y aguacate aderezada con salsa spicy.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $10.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ensalada-poseidon', -1, 'Ensalada Poseidón', 10)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ensalada-poseidon" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ensalada-poseidon', 1, 'Ensalada Poseidón', 10)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CEVICHES -->
+        <section id="cat-ceviches" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Ceviches</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ceviche clasico">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ceviche Clásico</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Cubos de dorado marinados en leche de tigre y ají, con chips de plátano verde.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $10.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ceviche-clasico', -1, 'Ceviche Clásico', 10.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ceviche-clasico" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ceviche-clasico', 1, 'Ceviche Clásico', 10.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ceviche green">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ceviche Green</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Dorado, camarones escalfados, aguacate, leche de tigre y chips de plátano.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $11.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ceviche-green', -1, 'Ceviche Green', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ceviche-green" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ceviche-green', 1, 'Ceviche Green', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="ceviche de mariscos">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Ceviche de Mariscos</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Dorado, pulpo, calamar y camarón en leche de tigre y ají picante.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $13.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('ceviche-mariscos', -1, 'Ceviche de Mariscos', 13)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-ceviche-mariscos" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('ceviche-mariscos', 1, 'Ceviche de Mariscos', 13)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLLS A TU PREFERENCIA -->
+        <section id="cat-rolls-pref" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Rolls a tu preferencia</span></div>
+            <p class="text-[11px] text-gray-400 mb-2 italic">Opción Frío o Tempurizado disponible.</p>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="vulcano roll">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Vulcano Roll</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Kanicama, queso crema, camarones tempura y topping de camarones crispy con salsa Fuji.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $11.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('vulcano-roll', -1, 'Vulcano Roll', 11.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-vulcano-roll" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('vulcano-roll', 1, 'Vulcano Roll', 11.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="caribe roll">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Caribe Roll</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Salmón, queso crema, kanicama, topping de plátano y camarones crispy con salsa Fuji y anguila.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $12.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('caribe-roll', -1, 'Caribe Roll', 12.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-caribe-roll" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('caribe-roll', 1, 'Caribe Roll', 12.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="rainbow roll">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Rainbow Roll</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Salmón, atún macerado en soya, pescado blanco y topping de queso crema con reducción de parchita.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $14.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('rainbow-roll', -1, 'Rainbow Roll', 14)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-rainbow-roll" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('rainbow-roll', 1, 'Rainbow Roll', 14)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLLS TRADICIONALES -->
+        <section id="cat-rolls-trad" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Rolls Tradicionales</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="dinamita roll">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Dinamita Roll</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Pasta dinamita, queso crema, aguacate y semillas de sésamo.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $9.99</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('dinamita-roll', -1, 'Dinamita Roll', 9.99)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-dinamita-roll" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('dinamita-roll', 1, 'Dinamita Roll', 9.99)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="california roll">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">California Roll</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Kanicama, queso crema, pepino, aguacate y caviar capelin naranja.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $11.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('california-roll', -1, 'California Roll', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-california-roll" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('california-roll', 1, 'California Roll', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="alaska tradicional">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Alaska Tradicional</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Salmón fresco, queso crema, cebollín, aguacate y semillas de sésamo.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $11.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('alaska-trad', -1, 'Alaska Tradicional', 11.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-alaska-trad" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('alaska-trad', 1, 'Alaska Tradicional', 11.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROLLS ESPECIALES -->
+        <section id="cat-rolls-esp" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Rolls Especiales</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="oishi tuna crunch">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Oishi Tuna Crunch</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Hoja de soya rosada, atún, cangrejo, maní, pudín crocante spicy y mayo pesto.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $14.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('oishi-tuna', -1, 'Oishi Tuna Crunch', 14)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-oishi-tuna" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('oishi-tuna', 1, 'Oishi Tuna Crunch', 14)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="okayama roll">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Okayama Roll</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Salmón, kanicama crocante spicy, topping de caviar y gratinado de mariscos.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $14.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('okayama-roll', -1, 'Okayama Roll', 14)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-okayama-roll" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('okayama-roll', 1, 'Okayama Roll', 14)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="black castle">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Black Castle</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Hoja de arroz, salmón noruego, salmón ahumado, crema de nueces y caviar.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $17.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('black-castle', -1, 'Black Castle', 17)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-black-castle" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('black-castle', 1, 'Black Castle', 17)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WOK & THAI -->
+        <section id="cat-wok" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Wok & Thai</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="tonkatsu bowl">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Tonkatsu Bowl</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Cerdo empanizado con arroz gohan, ensalada de col y salsa tonkatsu.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $7.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('tonkatsu-bowl', -1, 'Tonkatsu Bowl', 7)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-tonkatsu-bowl" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('tonkatsu-bowl', 1, 'Tonkatsu Bowl', 7)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="arroz chino especial">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Arroz Chino Especial</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Salteado al wok con carne, pollo teriyaki, camarones y vegetales en salsa ostras.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $9.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('arroz-especial', -1, 'Arroz Chino Especial', 9)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-arroz-especial" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('arroz-especial', 1, 'Arroz Chino Especial', 9)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="tallarines yakisoba">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Tallarines Yakisoba</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Noodles de huevo, tres proteínas y vegetales frescos en salsa yakisoba.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $11.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('tallarines-yakisoba', -1, 'Tallarines Yakisoba', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-tallarines-yakisoba" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('tallarines-yakisoba', 1, 'Tallarines Yakisoba', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- POKE Y BARCOS -->
+        <section id="cat-poke" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Poke y Barcos</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="poke tradicional">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Poke Tradicional</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">1 proteína a elección (salmón, atún, camarón, cangrejo o pollo) + base y toppings.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $11.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('poke-tradicional', -1, 'Poke Tradicional', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-poke-tradicional" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('poke-tradicional', 1, 'Poke Tradicional', 11)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="barco kurashiki">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Barco Kurashiki (Frío)</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Ebi Roll, Dinamita Roll y Tartar Roll ideal para compartir.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $32.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('barco-kurashiki', -1, 'Barco Kurashiki', 32)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-barco-kurashiki" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('barco-kurashiki', 1, 'Barco Kurashiki', 32)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- POSTRES -->
+        <section id="cat-postres" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Postres</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="brownie con helado">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Brownie con Helado</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Brownie caliente de chocolate con bola de helado de vainilla.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $6.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('brownie-helado', -1, 'Brownie con Helado', 6)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-brownie-helado" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('brownie-helado', 1, 'Brownie con Helado', 6)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="helado frito">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Helado Frito</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Crujiente cobertura tibia con centro cremoso de helado helado.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $7.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('helado-frito', -1, 'Helado Frito', 7)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-helado-frito" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('helado-frito', 1, 'Helado Frito', 7)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BEBIDAS -->
+        <section id="cat-bebidas" class="category-section scroll-mt-36">
+            <div class="mb-3"><span class="brush-title text-sm font-black text-white uppercase tracking-wider">Bebidas</span></div>
+            <div class="space-y-2.5">
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="batido de limonada con hierbabuena">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Limonada con Hierbabuena</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Batido refrescante con limón natural y hierbabuena fresca.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $3.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('limonada-hierbabuena', -1, 'Limonada c/ Hierbabuena', 3.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-limonada-hierbabuena" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('limonada-hierbabuena', 1, 'Limonada c/ Hierbabuena', 3.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="malteada chocopirulin">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Malteada Chocopirulin</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Cremosa malteada de chocolate coronada con trozos de Pirulin.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $5.50</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('malteada-pirulin', -1, 'Malteada Chocopirulin', 5.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-malteada-pirulin" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('malteada-pirulin', 1, 'Malteada Chocopirulin', 5.5)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card bg-gradient-to-r from-brand-card to-brand-card2 border border-white/5 p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-3" data-name="coca cola 350ml">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-white truncate">Coca Cola 350ml</h3>
+                        <p class="text-[11px] text-gray-400 leading-tight line-clamp-2">Retornable fría.</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1.5">
+                        <span class="text-xs font-extrabold text-brand-accent">Ref. $1.00</span>
+                        <div class="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5">
+                            <button onclick="updateQty('cocacola-350', -1, 'Coca Cola 350ml', 1)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                            <span id="qty-cocacola-350" class="w-5 text-center text-xs font-bold text-white">0</span>
+                            <button onclick="updateQty('cocacola-350', 1, 'Coca Cola 350ml', 1)" class="w-6 h-6 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BARRA INFERIOR FLOTANTE -->
+    <div class="fixed bottom-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-lg border-t border-white/10 py-3 px-4 shadow-2xl">
+        <div class="max-w-md mx-auto flex items-center justify-between gap-4">
+            <div>
+                <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Total estimado</span>
+                <span id="bar-total" class="text-lg font-black text-brand-accent">Ref. $0.00</span>
+            </div>
+            <button onclick="openModal()" class="cta-glow bg-gradient-to-r from-brand-accent to-yellow-500 text-black font-extrabold text-xs py-2.5 px-6 rounded-full flex items-center gap-2 hover:brightness-110 transition">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Ver Pedido</span>
+                <span id="bar-count" class="bg-black text-brand-accent px-1.5 py-0.5 rounded-full text-[10px] ml-1">0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE REVISIÓN Y PEDIDO -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-brand-card w-full max-w-md rounded-t-2xl sm:rounded-2xl border border-white/10 overflow-hidden max-h-[90vh] flex flex-col shadow-2xl">
+            <!-- Modal Header -->
+            <div class="p-4 bg-gradient-to-r from-brand-main to-brand-dark flex items-center justify-between text-white">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-receipt text-brand-accent"></i>
+                    <h2 class="font-bold text-sm uppercase tracking-wide">Resumen de Tu Pedido</h2>
+                </div>
+                <button onclick="closeModal()" class="text-gray-300 hover:text-white p-1 text-base"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Modal Content / Cart Items -->
+            <div class="p-4 overflow-y-auto space-y-4 flex-1">
+                <div id="modal-items-container" class="space-y-2.5">
+                    <!-- Dinámico -->
+                </div>
+
+                <!-- CAMPOS OBLIGATORIOS -->
+                <div class="space-y-3 pt-3 border-t border-white/10">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-300 mb-1">Nombre Completo *</label>
+                        <input type="text" id="clientName" placeholder="Tu nombre completo" required
+                            class="w-full bg-black/50 border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-300 mb-1">Notas / Observaciones</label>
+                        <textarea id="clientNotes" placeholder="Observaciones (ej. Sin cebolla, salsas aparte, dirección...)" rows="2"
+                            class="w-full bg-black/50 border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-accent resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- RESUMEN DE TOTAL -->
+                <div class="bg-black/40 rounded-xl p-3 border border-white/5 space-y-1">
+                    <div class="flex justify-between text-xs text-gray-400">
+                        <span>Productos</span>
+                        <span id="modal-subtotal">Ref. $0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-black text-white pt-1 border-t border-white/5">
+                        <span>Total Ref.</span>
+                        <span id="modal-total" class="text-brand-accent">Ref. $0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer CTA -->
+            <div class="p-4 bg-black/60 border-t border-white/10">
+                <button id="sendWhatsappBtn" onclick="sendOrderToWhatsApp()" disabled
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition text-xs uppercase tracking-wider shadow-lg">
+                    <i class="fab fa-whatsapp text-lg"></i>
+                    <span>Enviar Pedido por WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LÓGICA DE CARRITO Y FILTROS -->
+    <script>
+        let cart = {};
+
+        function updateQty(id, delta, name, price) {
+            if (!cart[id]) {
+                cart[id] = { id, name, price, qty: 0 };
+            }
+            
+            cart[id].qty += delta;
+
+            if (cart[id].qty <= 0) {
+                delete cart[id];
+            }
+
+            // Actualizar vista principal
+            const mainQtyElem = document.getElementById(`qty-${id}`);
+            if (mainQtyElem) {
+                mainQtyElem.innerText = cart[id] ? cart[id].qty : 0;
+            }
+
+            renderCartUI();
+        }
+
+        function renderCartUI() {
+            let total = 0;
+            let count = 0;
+            const modalContainer = document.getElementById('modal-items-container');
+            modalContainer.innerHTML = '';
+
+            const items = Object.values(cart);
+
+            if (items.length === 0) {
+                modalContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 space-y-1">
+                        <i class="fas fa-shopping-basket text-2xl mb-1 text-gray-600"></i>
+                        <p class="text-xs font-semibold">Tu pedido está vacío</p>
+                        <p class="text-[10px]">Agrega tus platillos favoritos del menú</p>
+                    </div>
+                `;
+                document.getElementById('sendWhatsappBtn').disabled = true;
+            } else {
+                document.getElementById('sendWhatsappBtn').disabled = false;
+                
+                items.forEach(item => {
+                    const itemTotal = item.price * item.qty;
+                    total += itemTotal;
+                    count += item.qty;
+
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between bg-black/30 p-2.5 rounded-lg border border-white/5 gap-2';
+                    row.innerHTML = `
+                        <div class="min-w-0 flex-1">
+                            <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
+                            <span class="text-[10px] text-brand-accent">Ref. $${item.price.toFixed(2)} c/u</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center bg-black/60 border border-white/10 rounded-lg p-0.5">
+                                <button onclick="updateQty('${item.id}', -1, '${item.name}', ${item.price})" class="w-5 h-5 flex items-center justify-center text-xs font-bold text-gray-300 hover:text-white">-</button>
+                                <span class="w-5 text-center text-xs font-bold text-white">${item.qty}</span>
+                                <button onclick="updateQty('${item.id}', 1, '${item.name}', ${item.price})" class="w-5 h-5 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
+                            </div>
+                            <span class="text-xs font-bold text-white w-14 text-right">Ref. $${itemTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                    modalContainer.appendChild(row);
+                });
+            }
+
+            // Actualizar totales y contadores
+            const formattedTotal = `Ref. $${total.toFixed(2)}`;
+            document.getElementById('bar-total').innerText = formattedTotal;
+            document.getElementById('bar-count').innerText = count;
+            document.getElementById('modal-subtotal').innerText = formattedTotal;
+            document.getElementById('modal-total').innerText = formattedTotal;
+        }
+
+        function scrollToCategory(id, btnElem) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = 'cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-stone-800 text-gray-300 border border-white/10 transition';
+            });
+
+            btnElem.className = 'cat-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full bg-brand-main text-white shadow-md transition';
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.product-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                if (name.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function openModal() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function sendOrderToWhatsApp() {
+            const clientName = document.getElementById('clientName').value.trim();
+            const clientNotes = document.getElementById('clientNotes').value.trim();
+
+            if (!clientName) {
+                alert('Por favor ingresa tu nombre para procesar el pedido.');
+                return;
+            }
+
+            const items = Object.values(cart);
+            if (items.length === 0) return;
+
+            let total = 0;
+            let message = `*NUEVO PEDIDO - OKAYAMA SUSHI*\n`;
+            message += `-----------------------------------\n`;
+
+            items.forEach(item => {
+                const sub = item.price * item.qty;
+                total += sub;
+                message += `• ${item.qty}x ${item.name} - Ref. $${sub.toFixed(2)}\n`;
+            });
+
+            message += `-----------------------------------\n`;
+            message += `*TOTAL ESTIMADO: Ref. $${total.toFixed(2)}*\n\n`;
+            message += `*Cliente:* ${clientName}\n`;
+            if (clientNotes) {
+                message += `*Observaciones:* ${clientNotes}\n`;
+            }
+
+            const phone = "584248106071";
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
