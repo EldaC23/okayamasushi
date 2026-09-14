@@ -32,53 +32,39 @@
         }
     </script>
     <style>
-        body {
-            background-color: #0B0B0C;
-            background-image: radial-gradient(circle at 50% 0%, rgba(241, 196, 15, 0.08), transparent 60%);
-            background-attachment: fixed;
-            color: #E5E7EB;
-        }
+  :root {
+    /* Dorado metálico/cálido exacto al de la imagen del cliente */
+    --gold-primary: #C5A059;
+    --gold-hover: #b08d48;
+    --bg-dark: #121212;
+  }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+  /* Aplica el borde dorado a las tarjetas de productos */
+  .product-card, 
+  [class*="card"] {
+    border: 1px solid var(--gold-primary) !important;
+  }
 
-        .brush-title {
-            position: relative;
-            display: inline-block;
-            padding: 4px 18px;
-            z-index: 1;
-        }
-        .brush-title::before {
-            content: "";
-            position: absolute;
-            inset: -2px -6px;
-            background: linear-gradient(100deg, #C0392B, #902B20);
-            transform: rotate(-1.5deg) skewX(-6deg);
-            border-radius: 6px 14px 6px 14px;
-            z-index: -1;
-            opacity: 0.95;
-            box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
-        }
+  /* Cambia los textos amarillos por el dorado del cliente */
+  .text-yellow-400, 
+  .text-yellow-500, 
+  .text-gold {
+    color: var(--gold-primary) !important;
+  }
 
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 4px 18px rgba(241, 196, 15, 0.45); }
-            50% { box-shadow: 0 4px 28px rgba(241, 196, 15, 0.75); }
-        }
-        .cta-glow {
-            animation: glowPulse 2.2s ease-in-out infinite;
-        }
+  /* Cambia los botones o fondos amarillos por el dorado */
+  .bg-yellow-400, 
+  .bg-yellow-500, 
+  .bg-gold {
+    background-color: var(--gold-primary) !important;
+  }
 
-        .product-card {
-            transition: transform 0.15s ease, border-color 0.15s ease;
-        }
-        .product-card:active {
-            transform: scale(0.98);
-        }
+  /* Bordes generales dorados */
+  .border-yellow-400, 
+  .border-yellow-500 {
+    border-color: var(--gold-primary) !important;
+  }
+</style>
     </style>
 </head>
 <body class="pb-28">
