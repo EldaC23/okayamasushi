@@ -786,7 +786,7 @@
                     row.innerHTML = `
                         <div class="min-w-0 flex-1">
                             <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
-                            <span class="text-[10px] text-brand-accent">Ref. $${item.price.toFixed(2)} c/u</span>
+                            <span class="text-[10px] text-brand-accent">Ref. ${item.price.toFixed(2)} c/u</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="flex items-center bg-black/60 border border-white/10 rounded-lg p-0.5">
@@ -794,7 +794,7 @@
                                 <span class="w-5 text-center text-xs font-bold text-white">${item.qty}</span>
                                 <button onclick="updateQty('${item.id}', 1, '${item.name}', ${item.price})" class="w-5 h-5 flex items-center justify-center text-xs font-bold text-brand-accent">+</button>
                             </div>
-                            <span class="text-xs font-bold text-white w-14 text-right">Ref. $${itemTotal.toFixed(2)}</span>
+                            <span class="text-xs font-bold text-white w-14 text-right">Ref. ${itemTotal.toFixed(2)}</span>
                         </div>
                     `;
                     modalContainer.appendChild(row);
