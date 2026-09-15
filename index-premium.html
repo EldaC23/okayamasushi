@@ -48,9 +48,9 @@ body{
   box-shadow:0 3px 10px rgba(201,162,39,0.4);
 }
 .cat-pill:not(.active){
-  background: rgba(255,255,255,0.05);
-  color:#d8d0c0;
-  border:1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.06);
+  color:#FFFFFF;
+  border:1px solid rgba(255,255,255,0.1);
 }
 
 .product-card{
@@ -104,8 +104,8 @@ input::placeholder, textarea::placeholder{ color:#8a8178; }
 </header>
 
 <!-- CATEGORY FILTER -->
-<nav id="catNav" class="sticky top-0 z-30 no-scrollbar overflow-x-auto whitespace-nowrap py-2 px-3"
-     style="background:rgba(11,11,12,0.96); top:0; border-bottom:1px solid rgba(255,255,255,0.06);">
+<nav id="catNav" class="sticky z-30 no-scrollbar overflow-x-auto whitespace-nowrap py-2 px-3"
+     style="background:rgba(11,11,12,0.97); border-bottom:1px solid rgba(255,255,255,0.06);">
 </nav>
 
 <!-- MENU CONTENT -->
@@ -180,20 +180,16 @@ function buildMenu(){
       </div>
       <div class="flex flex-col gap-2.5">
         ${c.items.map(it=>`
-          <div class="product-card rounded-xl p-2.5" id="card-${it.id}" data-name="${it.name.toLowerCase()}">
+          <div class="product-card rounded-xl p-2.5" id="card-${it.id}" data-name="${it.name.toLowerCase()}" data-desc="${it.desc.toLowerCase()}">
             <div class="flex items-start justify-between gap-3">
-              <p class="font-bold text-sm leading-tight" style="color:#FFFFFF;">${it.name}</p>
+              <p class="font-bold text-sm leading-tight flex-1" style="color:#FFFFFF;">${it.name}</p>
               <p class="font-bold text-sm shrink-0" style="color:var(--acento);">Ref. ${formatPrice(it.price)}</p>
             </div>
-            <div class="flex items-end justify-between gap-3 mt-1">
-              <div class="flex-1 min-w-0">
-                ${it.desc?`<p class="text-xs leading-snug" style="color:#cfc9c2;">${it.desc}</p>`:''}
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <button class="qty-btn" onclick="updateQty('${it.id}',-1)"><i class="fa-solid fa-minus text-xs"></i></button>
-                <span class="w-5 text-center font-bold text-sm" style="color:#FFFFFF;" id="qty-${it.id}">0</span>
-                <button class="qty-btn" onclick="updateQty('${it.id}',1)"><i class="fa-solid fa-plus text-xs"></i></button>
-              </div>
+            ${it.desc?`<p class="text-xs leading-snug mt-1 w-full" style="color:#cfc9c2;">${it.desc}</p>`:''}
+            <div class="flex items-center justify-end gap-2 mt-2">
+              <button class="qty-btn" onclick="updateQty('${it.id}',-1)"><i class="fa-solid fa-minus text-xs"></i></button>
+              <span class="w-5 text-center font-bold text-sm" style="color:#FFFFFF;" id="qty-${it.id}">0</span>
+              <button class="qty-btn" onclick="updateQty('${it.id}',1)"><i class="fa-solid fa-plus text-xs"></i></button>
             </div>
           </div>
         `).join('')}
@@ -274,11 +270,23 @@ function closeModal(){
   modal.classList.remove('flex');
 }
 
+function stickyOffset(){
+  const header = document.querySelector('header');
+  const nav = document.getElementById('catNav');
+  return (header ? header.offsetHeight : 0) + (nav ? nav.offsetHeight : 0);
+}
+
+function syncNavOffset(){
+  const header = document.querySelector('header');
+  const nav = document.getElementById('catNav');
+  if(header && nav){ nav.style.top = header.offsetHeight + 'px'; }
+}
+
 function scrollToCategory(id){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   document.getElementById('pill-'+id).classList.add('active');
   const el = document.getElementById('cat-'+id);
-  const headerOffset = 150;
+  const headerOffset = stickyOffset() + 10;
   const y = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
   window.scrollTo({top:y, behavior:'smooth'});
 }
@@ -289,8 +297,8 @@ function filterProducts(){
     let anyVisible = false;
     c.items.forEach(it=>{
       const card = document.getElementById('card-'+it.id);
-      const match = it.name.toLowerCase().includes(q);
-      card.style.display = match ? 'flex' : 'none';
+      const match = it.name.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q);
+      card.style.display = match ? 'block' : 'none';
       if(match) anyVisible = true;
     });
     document.getElementById('cat-'+c.id).style.display = anyVisible ? 'block' : 'none';
@@ -317,18 +325,21 @@ function sendWhatsApp(){
   if(name){ lines.push(''); lines.push(`*Nombre:* ${name}`); }
   if(notes){ lines.push(`*Observaciones:* ${notes}`); }
   const message = encodeURIComponent(lines.join('\n'));
-  window.open(`https://wa.me/584128995687?text=${message}`, '_blank');
+  window.open(`https://wa.me/584248106071?text=${message}`, '_blank');
 }
 
 buildNav();
 buildMenu();
 updateTotals();
+syncNavOffset();
+window.addEventListener('load', syncNavOffset);
+window.addEventListener('resize', syncNavOffset);
 
 // keep active pill in sync with scroll position
 const sections = categories.map(c=>document.getElementById('cat-'+c.id));
 window.addEventListener('scroll', ()=>{
   let currentId = categories[0].id;
-  const scrollPos = window.pageYOffset + 160;
+  const scrollPos = window.pageYOffset + stickyOffset() + 10;
   sections.forEach((sec,i)=>{
     if(sec && sec.offsetTop <= scrollPos){ currentId = categories[i].id; }
   });
