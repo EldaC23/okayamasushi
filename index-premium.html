@@ -55,12 +55,12 @@ body{
 
 .product-card{
   background: linear-gradient(135deg, var(--card-dark), var(--card-dark-2));
-  border:1px solid rgba(255,255,255,0.06);
+  border:1.5px solid rgba(201,162,39,0.55);
   box-shadow: 0 2px 10px rgba(0,0,0,0.35);
   transition: transform .12s ease, border-color .2s ease;
 }
 .product-card:active{ transform:scale(0.98); }
-.product-card.has-qty{ border-color: rgba(201,162,39,0.55); }
+.product-card.has-qty{ border-color: var(--acento); box-shadow: 0 2px 14px rgba(201,162,39,0.35); }
 
 .qty-btn{
   width:26px; height:26px; border-radius:9999px;
@@ -117,8 +117,9 @@ input::placeholder, textarea::placeholder{ color:#8a8178; }
     <button onclick="openModal()" class="cta-glow w-full flex items-center justify-between rounded-2xl px-5 py-3.5"
       style="background:linear-gradient(135deg, var(--acento), #A9821D); color:#1a1200;">
       <span class="font-bold text-sm"><span id="cartCount">0</span> producto(s)</span>
-      <span class="font-extrabold text-base">Ver Pedido · Ref. $<span id="cartTotal">0</span></span>
+      <span class="font-extrabold text-base">Ver Pedido · Ref. <span id="cartTotal">0</span></span>
     </button>
+    <p class="text-center text-[11px] mt-1.5" style="color:#cfc9c2;">No incluyen delivery</p>
   </div>
 </div>
 
@@ -126,7 +127,7 @@ input::placeholder, textarea::placeholder{ color:#8a8178; }
 <div id="orderModal" class="fixed inset-0 z-50 hidden items-end justify-center" style="background:rgba(0,0,0,0.7);">
   <div id="modalPanel" class="w-full max-w-lg rounded-t-3xl max-h-[85vh] flex flex-col" style="background:#151011; border-top:2px solid var(--acento);">
     <div class="flex items-center justify-between px-5 pt-4 pb-2">
-      <h3 class="font-extrabold text-lg" style="color:#F4E4C1;">Tu Pedido</h3>
+      <h3 class="font-extrabold text-lg" style="color:#FFFFFF;">Tu Pedido</h3>
       <button onclick="closeModal()" class="text-xl" style="color:#8a8178;"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
@@ -140,10 +141,11 @@ input::placeholder, textarea::placeholder{ color:#8a8178; }
     </div>
 
     <div class="px-5 pb-5 pt-2">
-      <div class="flex justify-between items-center mb-3">
-        <span class="text-sm font-semibold" style="color:#d8d0c0;">Total</span>
-        <span class="text-xl font-extrabold" style="color:var(--acento);">Ref. $<span id="modalTotal">0</span></span>
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-sm font-semibold" style="color:#FFFFFF;">Total</span>
+        <span class="text-xl font-extrabold" style="color:var(--acento);">Ref. <span id="modalTotal">0</span></span>
       </div>
+      <p class="text-[11px] text-right mb-2" style="color:#cfc9c2;">No incluyen delivery</p>
       <button id="sendBtn" onclick="sendWhatsApp()" class="w-full rounded-2xl py-3 font-extrabold text-sm"
         style="background:linear-gradient(135deg, var(--acento), #A9821D); color:#1a1200;">
         <i class="fa-brands fa-whatsapp mr-1"></i> Enviar por WhatsApp
@@ -178,16 +180,20 @@ function buildMenu(){
       </div>
       <div class="flex flex-col gap-2.5">
         ${c.items.map(it=>`
-          <div class="product-card rounded-xl p-2.5 flex items-center justify-between gap-3" id="card-${it.id}" data-name="${it.name.toLowerCase()}">
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-sm leading-tight" style="color:#F4E4C1;">${it.name}</p>
-              ${it.desc?`<p class="text-xs mt-0.5 leading-snug" style="color:#a89a8c;">${it.desc}</p>`:''}
-              <p class="text-xs font-bold mt-1" style="color:var(--acento);">Ref. $${formatPrice(it.price)}</p>
+          <div class="product-card rounded-xl p-2.5" id="card-${it.id}" data-name="${it.name.toLowerCase()}">
+            <div class="flex items-start justify-between gap-3">
+              <p class="font-bold text-sm leading-tight" style="color:#FFFFFF;">${it.name}</p>
+              <p class="font-bold text-sm shrink-0" style="color:var(--acento);">Ref. ${formatPrice(it.price)}</p>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <button class="qty-btn" onclick="updateQty('${it.id}',-1)"><i class="fa-solid fa-minus text-xs"></i></button>
-              <span class="w-5 text-center font-bold text-sm" id="qty-${it.id}">0</span>
-              <button class="qty-btn" onclick="updateQty('${it.id}',1)"><i class="fa-solid fa-plus text-xs"></i></button>
+            <div class="flex items-end justify-between gap-3 mt-1">
+              <div class="flex-1 min-w-0">
+                ${it.desc?`<p class="text-xs leading-snug" style="color:#cfc9c2;">${it.desc}</p>`:''}
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button class="qty-btn" onclick="updateQty('${it.id}',-1)"><i class="fa-solid fa-minus text-xs"></i></button>
+                <span class="w-5 text-center font-bold text-sm" style="color:#FFFFFF;" id="qty-${it.id}">0</span>
+                <button class="qty-btn" onclick="updateQty('${it.id}',1)"><i class="fa-solid fa-plus text-xs"></i></button>
+              </div>
             </div>
           </div>
         `).join('')}
@@ -244,8 +250,8 @@ function renderModalList(){
     const qty = cart[id];
     return `<div class="flex items-center justify-between gap-2 py-2.5 border-b" style="border-color:rgba(255,255,255,0.06);">
       <div class="flex-1 min-w-0">
-        <p class="font-semibold text-sm" style="color:#F4E4C1;">${p.name}</p>
-        <p class="text-xs" style="color:var(--acento);">Ref. $${formatPrice(p.price*qty)}</p>
+        <p class="font-semibold text-sm" style="color:#FFFFFF;">${p.name}</p>
+        <p class="text-xs" style="color:var(--acento);">Ref. ${formatPrice(p.price*qty)}</p>
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <button class="qty-btn" onclick="setQtyFromModal('${id}',-1)"><i class="fa-solid fa-minus text-xs"></i></button>
@@ -303,14 +309,15 @@ function sendWhatsApp(){
     const qty = cart[id];
     const subtotal = p.price*qty;
     total += subtotal;
-    lines.push(`• ${qty}x ${p.name} — Ref. $${formatPrice(subtotal)}`);
+    lines.push(`• ${qty}x ${p.name} — Ref. ${formatPrice(subtotal)}`);
   });
   lines.push('');
-  lines.push(`*Total: Ref. $${formatPrice(total)}*`);
+  lines.push(`*Total: Ref. ${formatPrice(total)}*`);
+  lines.push('_No incluyen delivery_');
   if(name){ lines.push(''); lines.push(`*Nombre:* ${name}`); }
   if(notes){ lines.push(`*Observaciones:* ${notes}`); }
   const message = encodeURIComponent(lines.join('\n'));
-  window.open(`https://wa.me/584128995687?text=${message}`, '_blank');
+  window.open(`https://wa.me/584248106071?text=${message}`, '_blank');
 }
 
 buildNav();
@@ -329,6 +336,9 @@ window.addEventListener('scroll', ()=>{
   const activePill = document.getElementById('pill-'+currentId);
   if(activePill) activePill.classList.add('active');
 });
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
